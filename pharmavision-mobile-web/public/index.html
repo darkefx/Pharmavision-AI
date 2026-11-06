@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f8f6" />
+  <meta name="description" content="Research prototype for visual classification of pharmaceutical tablets using EfficientNetV2-S. Images are analyzed in your browser." />
+  <title>PharmaVision — Tablet Inspection</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="PharmaVision home">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span>pharmavision<span class="brand-period">.</span></span>
+      </a>
+      <div class="header-meta"><span class="meta-dot"></span> Research prototype <span class="header-separator">/</span> v1.0</div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">VISUAL QUALITY ASSESSMENT <span class="eyebrow-line"></span> EFFICIENTNETV2-S</p>
+        <div class="intro-layout">
+          <h1 id="page-title">Tablet inspection,<br /><em>made accessible.</em></h1>
+          <p>Inspect a single pharmaceutical tablet using a camera or existing photograph. Crop the image, run the model and review its visual classification—all in your browser.</p>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Tablet image analysis workspace">
+        <div class="panel input-panel">
+          <div class="panel-heading">
+            <div><p class="section-index">01 / IMAGE INPUT</p><h2>Examine a tablet</h2></div>
+            <span class="tag">Single tablet</span>
+          </div>
+          <div id="dropZone" class="image-stage" role="region" aria-label="Selected tablet photograph. Drag to select the tablet area.">
+            <div id="emptyState" class="empty-state">
+              <div class="illustration" aria-hidden="true">
+                <svg width="104" height="104" viewBox="0 0 104 104" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7.5" y="7.5" width="89" height="89" rx="16" stroke="#C7D0CA" stroke-dasharray="4 6"/><rect x="29" y="33" width="46" height="38" rx="19" transform="rotate(-26 29 33)" stroke="#688278" stroke-width="1.7"/><path d="M52 46l-7 13m12-8-5 10" stroke="#688278" stroke-width="1.7" stroke-linecap="round"/><path d="M20 36v-9c0-4 3-7 7-7h9m32 64h9c4 0 7-3 7-7v-9" stroke="#B0BDB5" stroke-width="1.5"/></svg>
+              </div>
+              <p>Choose an image to begin</p>
+              <span>One tablet per image · JPG, PNG or WEBP</span>
+            </div>
+            <canvas id="previewCanvas" aria-label="Photograph with the crop region marked" hidden></canvas>
+          </div>
+          <div class="image-toolbar">
+            <div class="image-actions">
+              <button type="button" class="button button-primary" id="cameraButton"><span class="button-icon" aria-hidden="true">◎</span> Take photo</button>
+              <button type="button" class="button button-secondary" id="uploadButton">Choose file</button>
+            </div>
+            <div id="imageMeta" class="image-meta">No image selected</div>
+          </div>
+          <input id="cameraInput" class="visually-hidden" type="file" accept="image/*" capture="environment" />
+          <input id="fileInput" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp" />
+          <div id="cropTools" class="crop-tools" hidden>
+            <span><span class="crop-key" aria-hidden="true">↗</span> Drag across the photo to select the tablet area.</span>
+            <button type="button" class="text-button" id="resetCrop">Reset crop</button>
+          </div>
+          <div class="advice"><span class="advice-index">TIP</span><p>Place a single tablet on a plain surface under even lighting. Crop closely around the tablet before analyzing.</p></div>
+        </div>
+
+        <aside class="panel result-panel" aria-labelledby="results-title">
+          <div class="panel-heading">
+            <div><p class="section-index">02 / ANALYSIS</p><h2 id="results-title">Classification</h2></div>
+            <span class="indicator" id="modelIndicator"><i></i><span>Model standby</span></span>
+          </div>
+          <div class="result-body">
+            <div id="idleResult" class="idle-result">
+              <div class="result-placeholder" aria-hidden="true">—</div>
+              <h3>Awaiting an image</h3>
+              <p>The classifier will display the predicted visual condition and estimated defect probability.</p>
+            </div>
+            <div id="resultContent" class="prediction" hidden>
+              <p class="result-eyebrow">MODEL PREDICTION</p>
+              <div class="prediction-head"><h3 id="predictionLabel">—</h3><span id="predictionPill" class="prediction-pill">—</span></div>
+              <p id="predictionExplanation" class="prediction-explanation"></p>
+              <div class="score-block">
+                <div class="score-row"><span>Defect probability</span><strong id="defectPercent">—</strong></div>
+                <div class="prob-track"><div id="probBar" class="prob-fill"></div><span class="threshold-tick" aria-hidden="true"></span></div>
+                <div class="threshold-caption"><span>0%</span><span>40% decision threshold</span><span>100%</span></div>
+              </div>
+              <div class="small-stats"><div><span>Normal probability</span><strong id="normalPercent">—</strong></div><div><span>Inference time</span><strong id="inferenceTime">—</strong></div></div>
+            </div>
+          </div>
+          <button type="button" id="analyzeButton" class="button button-analyze" disabled><span id="analyzeText">Analyze image</span><span aria-hidden="true">↗</span></button>
+          <p id="statusMessage" class="status-message" role="status" aria-live="polite">Choose a tablet photograph to start.</p>
+          <div class="divider"></div>
+          <div class="review-panel">
+            <p class="section-index">03 / FIELD RECORD</p>
+            <h3>Document the observation</h3>
+            <label for="groundTruth">Observed condition <span>(optional)</span></label>
+            <select id="groundTruth" disabled><option value="">Not recorded</option><option value="normal">Visually normal</option><option value="defective">Visually defective</option><option value="uncertain">Uncertain / requires review</option></select>
+            <button type="button" class="button button-download" id="downloadLog" disabled>Export session CSV <span aria-hidden="true">↓</span></button>
+            <p class="field-note">Log files stay in your browser until you export them. No photos are stored by this page.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="information" aria-label="About the screening model">
+        <div><span class="info-numeral">01</span><h3>Local by design</h3><p>The photograph is analyzed in your browser. It is not uploaded to a prediction server.</p></div>
+        <div><span class="info-numeral">02</span><h3>Research protocol</h3><p>EfficientNetV2-S · 224 × 224 input · ImageNet normalization · 0.40 threshold.</p></div>
+        <div><span class="info-numeral">03</span><h3>Human oversight</h3><p>Outputs are screening suggestions, not final pharmaceutical quality decisions.</p></div>
+      </section>
+    </main>
+    <footer class="site-footer"><span>PharmaVision <span class="footer-sep">/</span> Independent research implementation</span><span>Visual inspection only. Not for batch release, clinical or regulatory decisions.</span></footer>
+  </div>
+</body>
+</html>
