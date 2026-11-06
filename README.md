@@ -2,11 +2,10 @@
 
 **AI-assisted visual screening of pharmaceutical tablets**
 
-[**Live demo**](https://pharmavision-ai-zeta.vercel.app/) · [Research paper](https://doi.org/10.3390/pharmaceutics18101287) · [Original PharmaVision dataset and benchmark](https://github.com/tahirlee/pharmaceutical-tablet-defect-detection)
+[**Live demo**](https://pharmavision-ai-zeta.vercel.app/) · [Research paper](https://doi.org/10.3390/pharmaceutics18101287) · 
 
 PharmaVision AI is a responsive research prototype that classifies photographs of individual pharmaceutical tablets as **visually normal** or **visually defective**. It uses an independently reconstructed and trained **EfficientNetV2-S** image classifier based on the published PharmaVision benchmark.
 
-The website runs in desktop and mobile browsers. Users can choose or capture a photograph, manually crop the tablet, and obtain a prediction with an estimated defect probability. It also supports recording observations and exporting a session log as CSV.
 
 > **Research demonstration only.** This application is not a validated pharmaceutical quality-control device. Its predictions must not be used alone to approve or reject medicines, release manufacturing batches, or make patient-safety decisions.
 
@@ -65,7 +64,6 @@ This project is an **independent educational reconstruction and web demonstratio
 
 Mahmood, T., Rehman, S. U., Niamat, A., Lee, S. J., & Park, K. R. (2026). *Artificial Intelligence-Based Quality Control of Pharmaceutical Tablets: A Visual Dataset and Benchmark for Automated Defect Detection*. **Pharmaceutics, 18**, 1287. https://doi.org/10.3390/pharmaceutics18101287
 
-- [Original benchmark repository and PharmaVision data](https://github.com/tahirlee/pharmaceutical-tablet-defect-detection)
 - [PharmaVision dataset archive](https://zenodo.org/records/22773411)
 - [pillQC external evaluation dataset](https://github.com/matlab-deep-learning/pillQC)
 
