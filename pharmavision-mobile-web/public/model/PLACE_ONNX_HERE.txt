@@ -1,7 +1,0 @@
-After exporting your Kaggle checkpoint, put the file named:
-
-efficientnetv2_s.onnx
-
-inside this folder.
-
-The website intentionally ships without model weights: you must supply your own exported model to get real predictions.
